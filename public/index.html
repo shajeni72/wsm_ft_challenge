@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Product Information Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="js/data.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center" id="pagination">
+            <li class="page-item" id="previous">
+                <a class="page-link" href="#" onclick="prevnext(-1)" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item" id="next">
+                <a class="page-link" href="#" onclick="prevnext(1)">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <span class="border border-primary" id="carousel"></span>
+            </div>
+            <div class="col">
+                <div id="productInformation"></div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    let currentIndex = 0;
+
+    /** Pagination Class **/
+    class Pagination {
+        constructor(index, styleClass) {
+            this.index = index;
+            this.class = styleClass;
+        }
+
+        render() {
+            return `
+                        <li class="${this.class}">
+                            <a class="page-link" href="#" onclick="populateProductInfo(${this.index})">${this.index + 1}</a>
+                        </li>
+                        `;
+        }
+
+    }
+
+    products.groups.forEach((element, index) => {
+        pagination = new Pagination(index, "page-item");
+        $("#next").before(pagination.render());
+    });
+
+    const prevnext = (val) => {
+        populateProductInfo(currentIndex + val)
+    }
+
+    const populateProductInfo = (index) => {
+        $("li:nth-of-type(" + (currentIndex + 2) + ")").attr(
+            "class", "page-item");
+        currentIndex = index;
+        $("li:nth-of-type(" + (currentIndex + 2) + ")").attr(
+            "class", "page-item active");
+        let string = `
+          <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+              <ol class="carousel-indicators">
+                  <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                  <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                  </ol>
+              <div class="carousel-inner">
+                  <div class="carousel-item active">
+                      <img class="d-block w-100" src="${products.groups[index].hero.href}" alt="First slide">
+                      </div>
+                  <div class="carousel-item">
+                      <img class="d-block w-100" src="${products.groups[index].thumbnail.href}" alt="Second slide">
+                      </div>
+                  </div>
+              <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                  </a>
+              <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                  </a>
+              </div>
+          `;
+        $("#carousel").empty();
+        $("#productInformation").empty();
+        $("#carousel").append(string);
+
+        let details = `<div class="jumbotron">
+              <h4 class="display-6">${products.groups[index].name}</h4>
+              <p class="lead">${products.groups[index].messages}</p>
+              <hr class="my-4">
+              <p>$ ${products.groups[index].priceRange.selling.low} -${products.groups[index].priceRange.selling.high}
+              </p>
+              <p class="lead">
+                  <a class="btn btn-primary btn-lg" href="${products.groups[index].links.www}" role="button">Add To Cart</a>
+              </p>
+          </div>`;
+        $("#productInformation").append(details);
+
+        if (currentIndex == 0)
+            $("#previous").attr('class', 'page-item disabled');
+        else
+            $("#previous").attr('class', 'page-item');
+
+        if (currentIndex + 1 == products.groups.length)
+            $("#next").attr('class', 'page-item disabled');
+        else
+            $("#next").attr('class', 'page-item');
+
+    };
+
+    populateProductInfo(currentIndex);
+</script>
+
+</html>
